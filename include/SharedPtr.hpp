@@ -4,7 +4,7 @@
 #define INCLUDE_SHAREDPTR_HPP_
 #include <atomic>
 #include <utility>
-
+//Соболезную
 template <typename T>
 class SharedPtr { //Класс, управляеющий определнным ресурсом, считающий ссылки. Сам чистит память при необходимости
  public:
