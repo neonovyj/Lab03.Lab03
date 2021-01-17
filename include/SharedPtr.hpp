@@ -43,7 +43,7 @@ SharedPtr<T>::SharedPtr(T* ptr)
 }
 template <typename T>
 SharedPtr<T>::SharedPtr(const SharedPtr& r)
-    : object(r.object), counter(r.counter) {
+    : object(r.object), counter(r.counter) { //копируем ресурс и адрес счетчика ссылок
   if (counter != nullptr) (*counter)++;
 }
 template <typename T>
@@ -62,7 +62,7 @@ SharedPtr<T>::~SharedPtr() {
 }
 
 template <typename T>
-auto SharedPtr<T>::operator=(const SharedPtr& r) -> SharedPtr& {
+auto SharedPtr<T>::operator=(const SharedPtr& r) -> SharedPtr& {//определяет, что делать с тем ресурсом, кот мы владеем.( уничтожить самому или отдать другим умным указателям)
   if (*this == r) return *this;
   reset();
   counter = r.counter;
@@ -98,7 +98,7 @@ template <typename T>
 auto SharedPtr<T>::get() -> T* {
   return object;
 }
-template <typename T>
+template <typename T> //Вызываем метод reset. Если counter - nullptr(ничем не владеем), просто выходим. Если чем то владеем, мы уменьшаем счетчик ссылок на 1, отказываясь от владения ресурсами, и смотрим, остались ли владельцы этих ресурсов. Если не остались, то чистим память от ресурса и счетчика и зануляем. А если еще есть владельцы(умные указатели, владеющие ресурсами), то себя зануляем, а их не трогаем
 void SharedPtr<T>::reset() { //определяет, что делать с ресурсом, кот уже владеем, а потом обнуляет себя
   if (counter == nullptr) return; //смотрим, владеем ли мы чем либо, если они равны, то выходим просто
   --(*counter); //уже знаем, что counter не nllptr, там есть значение, то разыменовываем его и уменьшаем на единицу
@@ -112,9 +112,9 @@ void SharedPtr<T>::reset() { //определяет, что делать с ре
 
 template <typename T>
 void SharedPtr<T>::reset(T* ptr) {
-  reset();
-  object = ptr;
-  counter = new std::atomic_uint(1);
+  reset();//вызываем reset без аргументов, кот сбросит наш указатель в нулевое состояние
+  object = ptr;//инициализируем object ptrом(войдем в право владения нулевым объектом)
+  counter = new std::atomic_uint(1);//Делаем новый счетчик. Инициализируем новый счетчик типа атомарного uinta единицей.
 }
 
 template <typename T>
