@@ -4,16 +4,16 @@
 #include <SharedPtr.hpp>
 #include <type_traits>
 
-TEST(DefaultFeatures, CopyingConstructor) {
-SharedPtr<int> ptr(new int(123));
-SharedPtr<int> ptr2(ptr);
-EXPECT_EQ(ptr.get(), ptr2.get());
-EXPECT_EQ(ptr.use_count(), ptr2.use_count());
-EXPECT_EQ(ptr.use_count(), 2);
+TEST(DefaultFeatures, CopyingConstructor) { //проверяем, правильно ли работает конструктор копирования
+SharedPtr<int> ptr(new int(123));// создаем некий умный указатель
+SharedPtr<int> ptr2(ptr); //создаем второй умный указатель, копируя первый (ptr2 из ptr)
+EXPECT_EQ(ptr.get(), ptr2.get());//сравниваем на равество значения, которые они хранят
+EXPECT_EQ(ptr.use_count(), ptr2.use_count());//сравниваем счетчики ссылок( должны быть равны)
+EXPECT_EQ(ptr.use_count(), 2);//сравниваем счетчик ссылок с 2, так как всего два указателя
 }
 
-TEST(DefaultFeatures, MovingConstructor) {
-SharedPtr<int> ptr(new int(123));
+TEST(DefaultFeatures, MovingConstructor) {//конструктор перемещения
+SharedPtr<int> ptr(new int(123));//создаем умный указетель из некого встроенного указателя
 
 auto tmp = ptr.get();
 EXPECT_TRUE(std::is_move_constructible<SharedPtr<int>>::value);
