@@ -37,50 +37,50 @@ EXPECT_EQ(sharedPtr.use_count(), 1);//ожидаем, что sharedPtr1 унич
 }
 
 TEST(DefaultFeatures, CopyingOperator) {
-SharedPtr<int> ptr1(new int(123));
-auto ptr2 = ptr1;
-EXPECT_EQ(ptr1.use_count(), ptr2.use_count());
+SharedPtr<int> ptr1(new int(123));//создаем умный указатель
+auto ptr2 = ptr1;//присваиваем копию птр1
+EXPECT_EQ(ptr1.use_count(), ptr2.use_count());//сравниваем их на равенство(кол-во ссылок и указателей должны быть равны)
 EXPECT_EQ(ptr1.get(), ptr2.get());
 }
 
-TEST(DefaultFeatures, MovingOperator) {
-EXPECT_TRUE(std::is_move_assignable<SharedPtr<int>>::value);
-SharedPtr<int> ptr1(new int(123));
-auto ptr1_obj = ptr1.get();
-auto ptr1_use_count = ptr1.use_count();
+TEST(DefaultFeatures, MovingOperator) { //тест, который проверяет оператор присваивания-перемещения
+EXPECT_TRUE(std::is_move_assignable<SharedPtr<int>>::value);//
+SharedPtr<int> ptr1(new int(123));//создаем птр1
+auto ptr1_obj = ptr1.get();//сохраняем значение его указателей в значение счетчика ссылок
+auto ptr1_use_count = ptr1.use_count();//сохранили его данные, которые хранились, чтобы сравнить с птр, который мы переместили
 
-auto ptr2 = std::move(ptr1);
-EXPECT_FALSE(ptr1);
+auto ptr2 = std::move(ptr1);//перемещаем его
+EXPECT_FALSE(ptr1);//ожидаем, что птр1 становится пустым, он владеет nullptr, у него украли ресурсы
 EXPECT_EQ(ptr1.use_count(), 0);
 
 EXPECT_EQ(ptr2.get(), ptr1_obj);
 EXPECT_EQ(ptr2.use_count(), ptr1_use_count);
 }
 
-TEST(DefaultFeatures, ResetTest1) {
-SharedPtr<int> sharedPtr(new int(1234));
+TEST(DefaultFeatures, ResetTest1) {//проверяет правильность работы reset()
+SharedPtr<int> sharedPtr(new int(1234));//создаем объект, который не нулевой
 EXPECT_EQ(sharedPtr.use_count(), 1);
 EXPECT_TRUE(sharedPtr);
 
-sharedPtr.reset();
+sharedPtr.reset();// делаем ресет и ожидаем, что он станет нулевым
 EXPECT_FALSE(sharedPtr);
 EXPECT_EQ(sharedPtr.use_count(), 0);
 }
 
-TEST(DefaultFeatures, ResetTest2) {
-int *ptr = new int(123);
+TEST(DefaultFeatures, ResetTest2) {//проверяем reset(аргумент)
+int *ptr = new int(123);// делаем два умных указателя, один- копия другого (счетчик ссылок равен два, два умных указателя владеют одним ресурсом)
 int *ptr2 = new int(456);
 
 SharedPtr<int> sharedPtr1(ptr);
 SharedPtr<int> sharedPtr2(sharedPtr1);
 
-EXPECT_EQ(sharedPtr1.get(), ptr);
+EXPECT_EQ(sharedPtr1.get(), ptr);//проверям, являются ли они копиями друг друга
 EXPECT_EQ(sharedPtr2.get(), ptr);
 EXPECT_EQ(sharedPtr2.use_count(), 2);
 EXPECT_EQ(sharedPtr1.use_count(), 2);
 
-sharedPtr2.reset(ptr2);
-EXPECT_EQ(sharedPtr2.get(), ptr2);
-EXPECT_EQ(sharedPtr1.use_count(), 1);
+sharedPtr2.reset(ptr2); //второй умный указатель ресетим на ptr2
+EXPECT_EQ(sharedPtr2.get(), ptr2);//ожидаем, что в этом случае sraredptr2 не копия первого
+EXPECT_EQ(sharedPtr1.use_count(), 1);//ссылки подсчитаются таким образом, что каждый из умных указателей останется единственным владельцем своего ресурса
 EXPECT_EQ(sharedPtr2.use_count(), 1);
 }
