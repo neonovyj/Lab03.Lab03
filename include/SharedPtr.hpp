@@ -52,27 +52,27 @@ SharedPtr<T>::SharedPtr(SharedPtr&& r) : object(nullptr), counter(nullptr) {
   std::swap(counter, r.counter);
 }
 template <typename T>
-SharedPtr<T>::~SharedPtr() {
-  if (counter == nullptr) return;
-  (*counter)--;
-  if (*counter == 0) {
-    delete counter;
+SharedPtr<T>::~SharedPtr() { //вначеле делаем две проверки:
+  if (counter == nullptr) return; //является ли наш объект владельцем какого либо ресура (не равен ли counter nullptr)
+  (*counter)--; //уменьшаем значения из counter на единицу
+  if (*counter == 0) { //Если counter обратился в ноль
+    delete counter;//удаляем все
     delete object;
   }
 }
 
 template <typename T>
 auto SharedPtr<T>::operator=(const SharedPtr& r) -> SharedPtr& {//определяет, что делать с тем ресурсом, кот мы владеем.( уничтожить самому или отдать другим умным указателям)
-  if (*this == r) return *this;
+  if (*this == r) return *this;//проверяем, не присваиваем ли мы себя себе. Тогда просто возвращаем ммылку на самого себя
   reset();
-  counter = r.counter;
-  object = r.object;
-  if (counter != nullptr) (*counter)++;
-  return *this;
+  counter = r.counter;//r - ссылка на объект из которого мы будем производить копирование
+  object = r.object; //объект из которого вызывается присваивание = объект, который передается как r (аргумент)
+  if (counter != nullptr) (*counter)++; //Если counter не nllptr, увеличиваем счетчик на единицу
+  return *this; //возвращаем ссылку на самого себя, чтобы можно было сделать множественное присваивание
 }
 
 template <typename T>
-auto SharedPtr<T>::operator=(SharedPtr&& r) -> SharedPtr& {
+auto SharedPtr<T>::operator=(SharedPtr&& r) -> SharedPtr& {// оператор присваивания перемещения
   if (*this == r) return *this;
   reset();
   counter = r.counter;
