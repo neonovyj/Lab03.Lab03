@@ -11,29 +11,29 @@ EXPECT_EQ(ptr.get(), ptr2.get());//сравниваем на равество з
 EXPECT_EQ(ptr.use_count(), ptr2.use_count());//сравниваем счетчики ссылок( должны быть равны)
 EXPECT_EQ(ptr.use_count(), 2);//сравниваем счетчик ссылок с 2, так как всего два указателя
 }
-
+//НИЖЕ создали умный указатель, переместили его в другой
 TEST(DefaultFeatures, MovingConstructor) {//конструктор перемещения
 SharedPtr<int> ptr(new int(123));//создаем умный указетель из некого встроенного указателя
 
-auto tmp = ptr.get();
-EXPECT_TRUE(std::is_move_constructible<SharedPtr<int>>::value);
-SharedPtr<int> ptr2(std::move(ptr));
-
-EXPECT_EQ(ptr.get(), nullptr);
+auto tmp = ptr.get();// сохраняем значение, которое он хранит во временную переменную tmp, для последующего сравнения
+EXPECT_TRUE(std::is_move_constructible<SharedPtr<int>>::value);//функция is... вернет тру, если у класса определен оператор перемещения( ожидаем тру)
+SharedPtr<int> ptr2(std::move(ptr));//создаем ptr2 как объект, в который мы поместили ptr(move),
+// так как мы его переместили, ожидаем, что у него нет ресурсов(ничем не владеем, nullptr) сравниваем кол-во ссылок с нулем и соответсвенно счетчик ссылок равен нулю,
+EXPECT_EQ(ptr.get(), nullptr);//Этот и ниже проверяют, обнулился ли первый указатель
 EXPECT_EQ(ptr.use_count(), 0);
-EXPECT_EQ(ptr2.use_count(), 1);
+EXPECT_EQ(ptr2.use_count(), 1);//Этот и ниже проверяют, забрал ли второй ресурсы первого
 EXPECT_EQ(ptr2.get(), tmp);
 }
 
-TEST(DefaultFeatures, Destructor) {
-int *ptr = new int(1234);
-SharedPtr<int> sharedPtr(ptr);
-{
-SharedPtr<int> sharedPtr1(sharedPtr);
-EXPECT_EQ(sharedPtr1.use_count(), 2);
+TEST(DefaultFeatures, Destructor) { //деструктор
+int *ptr = new int(1234);//создаем встроенный указатель
+SharedPtr<int> sharedPtr(ptr);//создаем умный указатель
+{//скорбки создают область видимости (внутри делаем sharedPtr)
+SharedPtr<int> sharedPtr1(sharedPtr);// его создаем как копию, которая уже есть
+EXPECT_EQ(sharedPtr1.use_count(), 2);//счетчик ссылок дожен быть равен null, так как у нас два объекта sharedPtr, которые владеют ресурсом
 EXPECT_EQ(sharedPtr1.use_count(), sharedPtr.use_count());
 }
-EXPECT_EQ(sharedPtr.use_count(), 1);
+EXPECT_EQ(sharedPtr.use_count(), 1);//ожидаем, что sharedPtr1 уничтожится, так как он за областью видимости.(кол-во ссылок должно быть равно 1)
 }
 
 TEST(DefaultFeatures, CopyingOperator) {
